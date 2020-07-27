@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+$color-select-border: #ccc;
+$height-select-input: 46px;
+$color-hover: #eee;
+$color-selected-item: #5a5959;
+
+@mixin txtPos {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.app {
+  padding-top: 5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.wrapper {
+  width: 500px;
+}
+
+.select {
+  width: 100%;
+  position: relative;
+  z-index: 100;
+
+
+  &__backdrop {
+    position: fixed;
+    display: none;
+    z-index: -1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: transparent;
+  }
+
+
+  &.open {
+    .select__dropdown {
+      display: block;
+    }
+
+    .select__input {
+      border-bottom: none;
+    }
+
+    .select__backdrop {
+      display: block;
+    }
+  }
+
+  &__input {
+    border: 1px solid $color-select-border;
+    height: $height-select-input;
+    border-radius: 5px;
+    cursor: pointer;
+    //===================
+    @include txtPos;
+    //===================
+    justify-content: space-between;
+  }
+
+
+  &__dropdown {
+    position: absolute;
+    //top: 0;
+    left: 0;
+    right: 0;
+    top: $height-select-input;
+    //==========================
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid $color-select-border;
+    box-shadow: 2px 3px 5px rgba(0,0,0,.3);
+    //=================
+    display: none;
+    //=================
+  }
+
+  &__list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+
+    &_item {
+      padding: 1rem;
+      border-bottom: 1px solid $color-select-border;
+
+      &.selected {
+        background-color: $color-selected-item;
+        color: #fff;
+      }
+
+      &:hover {
+        background-color: $color-hover;
+        cursor: pointer;
+        transition: .15s background-color ease-in;
+      }
+    }
+
+  }
+
+}
