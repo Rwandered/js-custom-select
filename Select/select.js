@@ -1,13 +1,21 @@
-const getHtml = (placeholder, data = [], selectedId) => {
+const getHtml = (placeholder, data = [], selectedIds, multiple = false) => {
   let text = placeholder || 'Select something from list'
 
   const listItem = data.map( (elem) => {
     let selCls = ''
-    if(elem.id.toString() === selectedId.toString()) {
-      selCls = 'selected'
-      text = elem.value
+    let multi = ''
+
+    selectedIds.forEach((id) => {
+      if(elem.id.toString() === id.toString()) {
+        selCls = 'selected'
+        text = elem.value
+      }
+    })
+
+    if(multiple) {
+      multi = `tabIndex= '0'`
     }
-    return `<li class="select__list_item ${selCls}" data-type="item" data-id="${elem.id}">${elem.value}</li>`
+    return `<li class="select__list_item ${selCls}" ${multi} data-type="item" data-id="${elem.id}">${elem.value}</li>`
   }).join('')
 
   return `
@@ -29,20 +37,27 @@ export class Select {
   constructor(selector, options) {
     this.selectorDom = document.querySelector(selector)
     this.options = options
-    this.selectedId = options.selectedId
+    this.selectedIds = [options.selectedId.toString()]
+    this.multiple = options.multiple
 
     this.#render()
     this.#addSetUp()
   }
 
   #render() {
-    const { placeHolder, data } = this.options
+    const { placeHolder, data, multiple} = this.options
     this.selectorDom.classList.add('select')
-    this.selectorDom.insertAdjacentHTML('afterbegin', getHtml(placeHolder, data, this.selectedId))
+    this.selectorDom.insertAdjacentHTML('afterbegin', getHtml(placeHolder, data, this.selectedIds, multiple))
   }
 
   #addSetUp() {
     this.selectorDom.addEventListener('click', this.#addHandlerClick)
+
+    if(this.multiple) {
+      document.body.addEventListener('keydown', this.#addHandleMultiple)
+      document.body.addEventListener('keyup', this.#removeHandleMultiple)
+    }
+
     this.arrowIcon = this.selectorDom.querySelector('[data-type="arrow"]')
     this.value = this.selectorDom.querySelector('[data-type="text"]')
     this.input = this.selectorDom.querySelector('[data-type="input"]')
@@ -70,21 +85,49 @@ export class Select {
     }
  }
 
+ #addHandleMultiple = (event) => {
+   if(event.key === 'Shift') {
+     this.multiSelect = true
+   }
+ }
+
+ #removeHandleMultiple = (event) => {
+   if(event.key === 'Shift') {
+     this.multiSelect = false
+   }
+ }
+
   get current() {
-    return this.options.data.find( elem => elem.id.toString() === this.selectedId.toString())
+
+    const res = this.options.data.reduce( (acc, elem) => {
+      return this.selectedIds.some( id => id.toString() === elem.id.toString())
+        ? [...acc, elem]
+        : acc
+    }, [])
+
+    return res
   }
 
   select = (id) => {
-    this.selectedId = id
-    const value = this.current.value
+    if(!this.multiSelect) {
+      this.selectedIds.length = 0
+    }
+    this.selectedIds.push(id)
+
+    const value = this.current.map(e =>  e.value ).join(' ')
     const selectedItem = this.selectorDom.querySelector(`[data-id="${id}"]`)
+
+
+
+    if(!this.multiSelect) {
+      this.selectorDom.querySelectorAll(`[data-type="item"]`).forEach(elem => elem.classList.remove('selected'))
+      this.close()
+    }
+
     this.#setTextContent(value)
-    this.selectorDom.querySelectorAll(`[data-type="item"]`).forEach(elem => elem.classList.remove('selected'))
     selectedItem.classList.add('selected')
 
     this.options.onSelect && this.options.onSelect(this.current)
-
-    this.close()
   }
 
   #setTextContent = (text) => this.value.textContent = text
@@ -109,6 +152,7 @@ export class Select {
     this.selectorDom.classList.remove('open')
     this.arrowIcon.classList.add('fa-chevron-down')
     this.arrowIcon.classList.remove('fa-chevron-up')
+    this.multiSelect = false
   }
 
   destroy() {

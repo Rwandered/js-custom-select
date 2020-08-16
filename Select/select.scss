@@ -46,6 +46,7 @@ body {
   &.open {
     .select__dropdown {
       display: block;
+
     }
 
     .select__input {
@@ -92,11 +93,12 @@ body {
 
     &_item {
       padding: 1rem;
+      outline: none;
       border-bottom: 1px solid $color-select-border;
 
       &.selected {
         background-color: $color-selected-item;
-        color: #fff;
+        //color: #fff;
       }
 
       &:hover {

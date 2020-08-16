@@ -16,7 +16,8 @@ const select = new Select('#select', {
     ],
   onSelect(item) { // некий callback - который вызывается после того как элемент выбран
     console.log('Selected item: ', item)
-  }
+  },
+  multiple: true,
 })
 
 window.select = select
