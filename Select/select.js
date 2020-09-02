@@ -1,6 +1,5 @@
-const getHtml = (placeholder, data = [], selectedIds, multiple = false) => {
+const getHtml = (placeholder, data = [], selectedIds, multiple = false, fieldValue) => {
   let text = placeholder || 'Select something from list'
-
   const listItem = data.map( (elem) => {
     let selCls = ''
     let multi = ''
@@ -8,14 +7,14 @@ const getHtml = (placeholder, data = [], selectedIds, multiple = false) => {
     selectedIds.forEach((id) => {
       if(elem.id.toString() === id.toString()) {
         selCls = 'selected'
-        text = elem.value
+        text = elem[fieldValue]
       }
     })
 
     if(multiple) {
       multi = `tabIndex= '0'`
     }
-    return `<li class="select__list_item ${selCls}" ${multi} data-type="item" data-id="${elem.id}">${elem.value}</li>`
+    return `<li class="select__list_item ${selCls}" ${multi} data-type="item" data-id="${elem.id}">${elem[fieldValue]}</li>`
   }).join('')
 
   return `
@@ -46,9 +45,10 @@ export class Select {
   }
 
   #render() {
-    const { placeHolder, data, multiple} = this.options
+    const { placeHolder, data, multiple, fieldValue} = this.options
+    this.fieldValue = fieldValue
     this.selectorDom.classList.add('select')
-    this.selectorDom.insertAdjacentHTML('afterbegin', getHtml(placeHolder, data, this.selectedIds, multiple))
+    this.selectorDom.insertAdjacentHTML('afterbegin', getHtml(placeHolder, data, this.selectedIds, multiple, fieldValue))
   }
 
   #addSetUp() {
@@ -116,13 +116,15 @@ export class Select {
     }
     this.selectedIds.push(id)
 
-    const value = this.current.map(e =>  e.value ).join(' ')
+    const value = this.current.map(e =>  e[this.fieldValue] ).join(', ')
     const selectedItem = this.selectorDom.querySelector(`[data-id="${id}"]`)
 
 
 
     if(!this.multiSelect) {
-      this.selectorDom.querySelectorAll(`[data-type="item"]`).forEach(elem => elem.classList.remove('selected'))
+      this.selectorDom
+        .querySelectorAll(`[data-type="item"]`)
+        .forEach(elem => elem.classList.remove('selected'))
       this.close()
     }
 
