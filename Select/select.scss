@@ -67,6 +67,12 @@ body {
     @include txtPos;
     //===================
     justify-content: space-between;
+
+    &_text {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
 
 
@@ -90,6 +96,8 @@ body {
     padding: 0;
     margin: 0;
     list-style: none;
+
+
 
     &_item {
       padding: 1rem;

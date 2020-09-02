@@ -21,7 +21,7 @@ const getHtml = (placeholder, data = [], selectedIds, multiple = false) => {
   return `
     <div class="select__backdrop" data-type="back"></div>
     <div class="select__input" data-type="input">
-      <span data-type="text">${text}</span>
+      <div class='select__input_text' data-type="text">${text}</div>
       <i class="fa fa-chevron-down" data-type="arrow"></i>
     </div>
     <div class="select__dropdown">
@@ -30,6 +30,7 @@ const getHtml = (placeholder, data = [], selectedIds, multiple = false) => {
       </ul>
     </div>
 `
+    // <span data-type="text">${text}</span>
 }
 
 
@@ -52,6 +53,7 @@ export class Select {
 
   #addSetUp() {
     this.selectorDom.addEventListener('click', this.#addHandlerClick)
+    this.selectorDom.onselectstart = () => false
 
     if(this.multiple) {
       document.body.addEventListener('keydown', this.#addHandleMultiple)
